@@ -24,29 +24,29 @@ Neste jogo, o jogador controla uma nave espacial e deve defender a Terra de uma 
 
 1. Clone o repositório:
 
-'
+```
 git clone https://github.com/seu-usuario/space-invaders.git
-'
+```
 
 
 2. Acesse o diretório do projeto:
 
-'
+```
 cd pygame
-'
+```
 
 3. Instale as dependências:
 
-'
+```
 pip install -r requirements.txt
-'
+```
 
 
 4. Execute o jogo:
 
-'
+```
 python main.py
-'
+```
 
 
 ## Controles
