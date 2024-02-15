@@ -2,6 +2,8 @@
 
 Space Invaders é um jogo clássico desenvolvido em Python utilizando a biblioteca Pygame.
 
+![image](https://github.com/LeviLucena/pygame/assets/34045910/100abce2-1802-4364-a65c-5ca8ba523e7b)
+
 ## Descrição
 
 Neste jogo, o jogador controla uma nave espacial e deve defender a Terra de uma invasão alienígena. O objetivo é destruir todos os inimigos que descem em direção ao jogador enquanto desvia de seus tiros e sobrevive o máximo de tempo possível.
@@ -62,7 +64,5 @@ Contribuições são bem-vindas! Sinta-se à vontade para abrir um pull request 
 
 Este projeto está licenciado sob a licença MIT. Consulte o arquivo LICENSE para obter mais informações.
 
-## Autor
-
-[Seu Nome](https://github.com/seu-usuario)
+- **LinkedIn:** [![Linkedin Badge](https://img.shields.io/badge/-LinkedIn-blue?style=flat-square&logo=Linkedin&logoColor=white&link=https://www.linkedin.com/in/levilucena/)](https://www.linkedin.com/in/levilucena/)
 
