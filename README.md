@@ -4,7 +4,7 @@
 
 Um Space Invaders clássico completamente reimaginado com Python + pygame-ce, com 5 waves de dificuldade crescente e um boss épico no wave final.
 
-https://github.com/user-attachments/assets/e81c6c27-af59-4c3d-b0bf-775ae5c0978c
+https://github.com/user-attachments/assets/311e4f14-f0bb-4218-9288-5a72cd482761
 
 ---
 
