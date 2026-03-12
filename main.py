@@ -269,6 +269,50 @@ def draw_pixel_title(surf, text, x, y, color, font, glow=True):
     draw_glitch_title(surf, text, x, y, color, font, t=0, intensity=0.4)
 
 
+def draw_pixel_glitch_title(surf, text, x, y, color, pixel_font, scale, t, intensity=1.0):
+    """Pixel retro title: renders small → scale-up (nearest-neighbor) → glitch/glow."""
+    # Render base at small size (no antialiasing = sharp pixel edges)
+    base = pixel_font.render(text, False, color)
+    W, H = base.get_width() * scale, base.get_height() * scale
+    big  = pygame.transform.scale(base, (W, H))
+
+    # ── Outer glow (3 passes using alpha surfaces)
+    for r, alpha in ((8, 25), (5, 45), (3, 65)):
+        gs   = pygame.Surface((W + r*2, H + r*2), pygame.SRCALPHA)
+        gbig = pygame.transform.scale(base.copy(), (W, H))
+        gbig.set_alpha(alpha)
+        gs.blit(gbig, (r, r))
+        surf.blit(gs, (x - r, y - r))
+
+    # ── Chromatic aberration — red left, blue right
+    ca   = max(2, int(3 * intensity))
+    r_s  = pixel_font.render(text, False, (255, 0, 0))
+    b_s  = pixel_font.render(text, False, (0, 80, 255))
+    r_big = pygame.transform.scale(r_s, (W, H))
+    b_big = pygame.transform.scale(b_s, (W, H))
+    drift = int(2 * math.sin(t * 0.07))
+    r_big.set_alpha(90); b_big.set_alpha(90)
+    surf.blit(r_big, (x - ca + drift, y), special_flags=pygame.BLEND_ADD)
+    surf.blit(b_big, (x + ca - drift, y), special_flags=pygame.BLEND_ADD)
+
+    # ── Main text
+    surf.blit(big, (x, y))
+
+    # ── Occasional glitch band (horizontal slice shift)
+    if random.random() < 0.04 * intensity:
+        gy   = y + random.randint(scale, H - scale * 2)
+        gbw  = random.randint(scale * 3, W // 2)
+        gbx  = x + random.randint(0, max(0, W - gbw))
+        clip = pygame.Rect(gbx, gy, gbw, random.randint(scale, scale * 2))
+        if (clip.right <= surf.get_width() and
+                clip.bottom <= surf.get_height() and clip.width > 0):
+            try:
+                tmp = surf.subsurface(clip).copy()
+                surf.blit(tmp, (gbx + random.randint(-scale*2, scale*2), gy))
+            except Exception:
+                pass
+
+
 # ══════════════════════════════════════════════════════════════════
 #  SOUND
 # ══════════════════════════════════════════════════════════════════
@@ -1189,6 +1233,7 @@ class Game:
         self.fonts={
             'title_big': pygame.font.SysFont("Courier New",72,bold=True),
             'title_med': pygame.font.SysFont("Courier New",54,bold=True),
+            'pixel':     pygame.font.Font(None, 14),
             'lg':  pygame.font.SysFont("Courier New",32,bold=True),
             'md':  pygame.font.SysFont("Courier New",20,bold=True),
             'sm':  pygame.font.SysFont("Courier New",14),
@@ -1580,21 +1625,24 @@ class Game:
         gs_band.fill((0, 220, 80, 22))
         surf.blit(gs_band, (0, band_y % SH))
 
-        # ── TITLE  "SPACE" (cyan) + "INVADERS" (yellow)
-        tf_big = self.fonts['title_big']
-        tf_med = self.fonts['title_med']
+        # ── TITLE  "SPACE" (cyan) + "INVADERS" (yellow) — pixel retro style
+        pf = self.fonts['pixel']
 
-        # "SPACE" — large, centered, cyan, with glitch
-        t1w = tf_big.size("SPACE")[0]
-        draw_glitch_title(surf, "SPACE",
-                          SW//2 - t1w//2, 48, CYAN, tf_big, t, intensity=1.2)
+        # "SPACE" — scale 9× → ~126 px blocky letters
+        t1_scale = 9
+        t1_surf  = pf.render("SPACE", False, CYAN)
+        t1w      = t1_surf.get_width() * t1_scale
+        t1h      = t1_surf.get_height() * t1_scale
+        t1y      = 18
+        draw_pixel_glitch_title(surf, "SPACE",
+                                SW//2 - t1w//2, t1y, CYAN, pf, t1_scale, t, intensity=1.2)
 
-        # "INVADERS" — large, centered, yellow, glitch offset from "SPACE"
-        t2w = tf_med.size("INVADERS")[0]
-        # subtle vertical oscillation
-        iy = 138 + int(3 * math.sin(t * 0.04))
-        draw_glitch_title(surf, "INVADERS",
-                          SW//2 - t2w//2, iy, YELLOW, tf_med, t + 30, intensity=1.0)
+        # "INVADERS" — scale 8× → ~112 px blocky letters, colado abaixo do "SPACE"
+        t2_scale = 8
+        t2w      = pf.render("INVADERS", False, YELLOW).get_width() * t2_scale
+        iy       = t1y + t1h + 4 + int(3 * math.sin(t * 0.04))
+        draw_pixel_glitch_title(surf, "INVADERS",
+                                SW//2 - t2w//2, iy, YELLOW, pf, t2_scale, t + 30, intensity=1.0)
 
         # ── Subtitle
         sub = self.fonts['xs'].render(
